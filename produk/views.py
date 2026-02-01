@@ -198,45 +198,65 @@ def produk_list(request):
     }
     return render(request, 'produk/list.html', context)
 
-def produk_create(request):
+def produk_create_get(request):
     """
-    Create a new product
+    Fungsi untuk menampilkan halaman buat produk baru (seperti Laravel's create())
     """
-    if request.method == 'POST':
-        form = ProdukForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Produk berhasil ditambahkan")
-            return redirect('produk_list')
-    else:
-        form = ProdukForm()
-
+    form = ProdukForm()
     context = {
         'form': form,
         'action': 'Tambah'
     }
-    return render(request, 'produk/form.html', context)
+    return render(request, 'produk/create.html', context)
 
-def produk_update(request, pk):
+def produk_create_post(request):
     """
-    Update an existing product
+    Fungsi untuk menyimpan produk baru (seperti Laravel's store())
+    """
+    form = ProdukForm(request.POST)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Produk berhasil ditambahkan")
+        return redirect('produk_list')
+    else:
+        # Jika form tidak valid, kembali ke halaman create dengan error
+        context = {
+            'form': form,
+            'action': 'Tambah'
+        }
+        return render(request, 'produk/create.html', context)
+
+def produk_edit_get(request, pk):
+    """
+    Fungsi untuk menampilkan halaman edit produk (seperti Laravel's edit())
     """
     produk = get_object_or_404(Produk, pk=pk)
-
-    if request.method == 'POST':
-        form = ProdukForm(request.POST, instance=produk)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Produk berhasil diperbarui")
-            return redirect('produk_list')
-    else:
-        form = ProdukForm(instance=produk)
-
+    form = ProdukForm(instance=produk)
     context = {
         'form': form,
-        'action': 'Edit'
+        'action': 'Edit',
+        'produk': produk
     }
-    return render(request, 'produk/form.html', context)
+    return render(request, 'produk/edit.html', context)
+
+def produk_update_post(request, pk):
+    """
+    Fungsi untuk menyimpan perubahan produk (seperti Laravel's update())
+    """
+    produk = get_object_or_404(Produk, pk=pk)
+    form = ProdukForm(request.POST, instance=produk)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Produk berhasil diperbarui")
+        return redirect('produk_list')
+    else:
+        # Jika form tidak valid, kembali ke halaman edit dengan error
+        context = {
+            'form': form,
+            'action': 'Edit',
+            'produk': produk
+        }
+        return render(request, 'produk/edit.html', context)
 
 def produk_delete(request, pk):
     """
